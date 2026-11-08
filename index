@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TB Show - Interactive Tic-Tac-Toe</title>
+  
+  <!-- Fonts & Confetti -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=Big+Shoulders+Inline:wght@800;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <style>
+    :root {
+      --tb-wine: #800020;
+      --tb-crimson: #B22222;
+      --tb-bright-red: #E60000;
+      --tb-wine-glow: rgba(178, 34, 34, 0.45);
+      --tb-gold: #D4AF37;
+      --tb-gold-light: #F3E5AB;
+      --tb-card-bg: rgba(13, 3, 6, 0.90);
+      --tb-border: rgba(178, 34, 34, 0.45);
+      --text-white: #FFFFFF;
+      --text-muted: #E0C0C6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+    body {
+      background-color: transparent !important;
+      background-image: none !important;
+      font-family: 'Big Shoulders Display', sans-serif;
+      color: var(--text-white);
+      width: 100vw; height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 12px; overflow: hidden;
+    }
+
+    .app-container {
+      width: 100%; max-width: 900px; height: 100%; max-height: 520px;
+      background: var(--tb-card-bg) !important; border: 2px solid var(--tb-border);
+      border-left: 8px solid var(--tb-crimson); border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px var(--tb-wine-glow);
+      backdrop-filter: blur(10px); display: flex; flex-direction: column;
+      justify-content: space-between; padding: 16px; position: relative;
+    }
+
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--tb-border); padding-bottom: 8px;
+    }
+
+    .brand-badge { font-family: 'Big Shoulders Inline', sans-serif; font-size: 24px; color: var(--tb-gold); letter-spacing: 2px; text-transform: uppercase; }
+    .game-title { font-size: 20px; font-weight: 800; color: var(--text-white); letter-spacing: 1.5px; }
+    .turn-badge { font-size: 16px; font-weight: 800; background: rgba(178, 34, 34, 0.3); border: 1px solid var(--tb-crimson); padding: 4px 10px; border-radius: 6px; color: var(--tb-gold-light); }
+
+    .game-body {
+      display: flex; gap: 30px; align-items: center; justify-content: center; flex: 1; margin: 10px 0;
+    }
+
+    /* Tic Tac Toe Grid 3x3 */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 90px);
+      grid-template-rows: repeat(3, 90px);
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 12px;
+      border: 1px solid var(--tb-border);
+      border-radius: 8px;
+    }
+
+    .grid-cell {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(178, 34, 34, 0.3);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .grid-cell:hover {
+      border-color: var(--tb-gold);
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    .grid-cell.x-mark {
+      color: var(--tb-bright-red);
+      text-shadow: 0 0 10px var(--tb-wine-glow);
+    }
+
+    .grid-cell.o-mark {
+      color: var(--tb-gold);
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    }
+
+    .side-panel {
+      width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .info-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--tb-border);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .info-box span {
+      color: var(--tb-gold);
+      font-weight: bold;
+    }
+
+    .chat-simulator { display: flex; gap: 8px; border-top: 1px solid var(--tb-border); padding-top: 10px; }
+    .chat-input {
+      flex: 1; background: rgba(0, 0, 0, 0.5); border: 1px solid var(--tb-border);
+      padding: 8px 12px; border-radius: 6px; color: var(--text-white); font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
+      text-transform: uppercase;
+    }
+    .chat-btn {
+      background: linear-gradient(135deg, var(--tb-crimson), var(--tb-wine)); border: 1px solid var(--tb-gold);
+      color: var(--text-white); font-family: 'Big Shoulders Display', sans-serif; font-size: 18px; font-weight: 800;
+      padding: 0 20px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .chat-btn:hover { filter: brightness(1.2); }
+
+    .status-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(13, 3, 6, 0.95); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; border-radius: 12px; z-index: 20;
+      opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+    }
+    .status-overlay.active { opacity: 1; pointer-events: auto; }
+    .status-title { font-size: 48px; font-weight: 900; color: var(--tb-gold); letter-spacing: 2px; margin-bottom: 10px; }
+    .status-desc { font-size: 20px; color: var(--text-white); margin-bottom: 20px; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="header">
+      <span class="brand-badge">THE BEYOND SHOW</span>
+      <span class="game-title">TIC-TAC-TOE</span>
+      <span class="turn-badge" id="turnDisplay">TURN: PLAYER X</span>
+    </div>
+
+    <div class="game-body">
+      <!-- 3x3 Grid (A1 to C3) -->
+      <div class="grid-container" id="tttGrid"></div>
+
+      <div class="side-panel">
+        <div class="info-box">
+          <span>OBJECTIVE:</span> Align 3 matching symbols (X or O) horizontally, vertically, or diagonally!
+        </div>
+        <div class="info-box">
+          <span>CONTROLS:</span> Type coordinates (e.g. <span>A1</span>, <span>B2</span>, <span>C3</span>) or click directly on the grid.
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-simulator">
+      <input type="text" id="chatInput" class="chat-input" placeholder="Type coordinate (e.g. B2)..." autofocus>
+      <button class="chat-btn" id="sendBtn">PLAY!</button>
+    </div>
+
+    <div class="status-overlay" id="statusOverlay">
+      <div class="status-title" id="statusTitle">VICTORY!</div>
+      <div class="status-desc" id="statusDesc">Player X wins the match!</div>
+      <button class="chat-btn" onclick="resetGameCloud()">NEW GAME</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // INSÉRER VOS CLÉS FIREBASE ICI :
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "tbshow-tictactoe.firebaseapp.com",
+      databaseURL: "https://tbshow-tictactoe-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "tbshow-tictactoe",
+      storageBucket: "tbshow-tictactoe.firebasestorage.app",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const ROWS = ['A', 'B', 'C'];
+    const COLS = [1, 2, 3];
+    const WINNING_COMBOS = [
+      ['A1','A2','A3'], ['B1','B2','B3'], ['C1','C2','C3'],
+      ['A1','B1','C1'], ['A2','B2','C2'], ['A3','B3','C3'],
+      ['A1','B2','C3'], ['A3','B2','C1']
+    ];
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'move') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+      }
+    }
+
+    function buildGridUI() {
+      const grid = document.getElementById('tttGrid');
+      grid.innerHTML = '';
+      ROWS.forEach(row => {
+        COLS.forEach(col => {
+          const cellId = `${row}${col}`;
+          const cell = document.createElement('div');
+          cell.className = 'grid-cell';
+          cell.id = `cell-${cellId}`;
+          cell.onclick = () => processMove(cellId);
+          grid.appendChild(cell);
+        });
+      });
+    }
+
+    const gameRef = ref(db, 'tictactoe_game');
+    onValue(gameRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        updateUI(data);
+        checkStatus(data);
+      } else {
+        resetGameCloud();
+      }
+    });
+
+    function updateUI(data) {
+      const board = data.board || {};
+      const currentTurn = data.turn || 'X';
+
+      document.getElementById('turnDisplay').innerText = `TURN: PLAYER ${currentTurn}`;
+
+      ROWS.forEach(row => {
+        COLS.forEach(col => {
+          const id = `${row}${col}`;
+          const cell = document.getElementById(`cell-${id}`);
+          cell.className = 'grid-cell';
+          cell.innerText = board[id] || id;
+
+          if (board[id] === 'X') {
+            cell.classList.add('x-mark');
+            cell.innerText = 'X';
+          } else if (board[id] === 'O') {
+            cell.classList.add('o-mark');
+            cell.innerText = 'O';
+          }
+        });
+      });
+    }
+
+    window.processMove = function(target) {
+      const cleanTarget = target.trim().toUpperCase();
+      if (!ROWS.includes(cleanTarget[0]) || !COLS.includes(parseInt(cleanTarget[1]))) return;
+
+      get(gameRef).then((snapshot) => {
+        const data = snapshot.val() || { board: {}, turn: 'X' };
+        let board = data.board || {};
+        let turn = data.turn || 'X';
+        
+        if (board[cleanTarget]) return; // Case déjà occupée
+
+        board[cleanTarget] = turn;
+        playSound('move');
+
+        set(gameRef, {
+          board: board,
+          turn: turn === 'X' ? 'O' : 'X'
+        });
+      });
+    }
+
+    function checkStatus(data) {
+      const board = data.board || {};
+      let winner = null;
+
+      for (let combo of WINNING_COMBOS) {
+        const [a, b, c] = combo;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          winner = board[a];
+          break;
+        }
+      }
+
+      const totalMoves = Object.keys(board).length;
+      const isDraw = !winner && totalMoves === 9;
+
+      const overlay = document.getElementById('statusOverlay');
+      if (winner) {
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+        document.getElementById('statusTitle').innerText = "VICTORY!";
+        document.getElementById('statusDesc').innerText = `Player ${winner} wins the match!`;
+        overlay.classList.add('active');
+      } else if (isDraw) {
+        document.getElementById('statusTitle').innerText = "DRAW!";
+        document.getElementById('statusDesc').innerText = `Cat's game! No winner this round.`;
+        overlay.classList.add('active');
+      } else {
+        overlay.classList.remove('active');
+      }
+    }
+
+    window.resetGameCloud = function() {
+      set(gameRef, {
+        board: {},
+        turn: 'X'
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      buildGridUI();
+
+      document.getElementById('sendBtn').addEventListener('click', () => {
+        const input = document.getElementById('chatInput');
+        processMove(input.value);
+        input.value = '';
+      });
+
+      document.getElementById('chatInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          const input = document.getElementById('chatInput');
+          processMove(input.value);
+          input.value = '';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
