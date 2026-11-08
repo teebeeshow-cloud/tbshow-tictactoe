@@ -185,15 +185,14 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // INSÉRER VOS CLÉS FIREBASE ICI :
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
+      apiKey: "AIzaSyB_n1vGlx-deIDO4aRfj4O9eMvf8EmNc24",
       authDomain: "tbshow-tictactoe.firebaseapp.com",
       databaseURL: "https://tbshow-tictactoe-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "tbshow-tictactoe",
       storageBucket: "tbshow-tictactoe.firebasestorage.app",
-      messagingSenderId: "SENDER_ID",
-      appId: "APP_ID"
+      messagingSenderId: "1751654131",
+      appId: "1:1751654131:web:aab3895b158689c3232186"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -284,7 +283,7 @@
         let board = data.board || {};
         let turn = data.turn || 'X';
         
-        if (board[cleanTarget]) return; // Case déjà occupée
+        if (board[cleanTarget]) return;
 
         board[cleanTarget] = turn;
         playSound('move');
